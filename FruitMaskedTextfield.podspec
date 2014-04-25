@@ -6,7 +6,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = "FruitMaskedTextfield"
-  s.version          = "0.1.0"
+  s.version          = "1.0.0"
   s.summary          = "Simple, yet functional, UITextField addition to allow masked edit (example: IPv4 addresses)."
   s.description      = <<-DESC
                        You can use FruitMaskedTextfield to format strings using

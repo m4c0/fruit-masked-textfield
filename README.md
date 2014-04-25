@@ -18,9 +18,9 @@ it simply add the following line to your Podfile:
 
 ## Author
 
-, 
+Eduardo M Costa <pods@tpk.com.br>
 
 ## License
 
-FruitMaskedTextfield is available under the MIT license. See the LICENSE file for more info.
+FruitMaskedTextfield is available under the GPLv3 license. See the LICENSE file for more info.
 

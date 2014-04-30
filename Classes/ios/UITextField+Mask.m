@@ -30,10 +30,14 @@ static char UITextFieldMaskFormatter;
 
 @implementation UITextField (Mask)
 
+#pragma mark - Swizzling swizzles
+
 + (void)load {
-    [self masklySwizzle:@selector(paste:) with:@selector(maskPaste:)];
-    [self masklySwizzle:@selector(deleteBackward) with:@selector(maskDeleteBackward)];
-    [self masklySwizzle:@selector(insertText:) with:@selector(maskInsertText:)];
+    [self masklySwizzle:@selector(paste:) with:@selector(__maskPaste:)];
+    [self masklySwizzle:@selector(deleteBackward) with:@selector(__maskDeleteBackward)];
+    [self masklySwizzle:@selector(insertText:) with:@selector(__maskInsertText:)];
+    [self masklySwizzle:@selector(text) with:@selector(__maskText)];
+    [self masklySwizzle:@selector(setText:) with:@selector(__maskSetText:)];
 }
 + (void)masklySwizzle:(SEL)as with:(SEL)ms {
     Method am = class_getInstanceMethod(self, as);
@@ -43,6 +47,8 @@ static char UITextFieldMaskFormatter;
     method_setImplementation(am, m);
     method_setImplementation(mm, a);
 }
+
+#pragma mark - Public interface
 
 - (NSString *)mask {
     return self.formatter.mask;
@@ -55,26 +61,47 @@ static char UITextFieldMaskFormatter;
     }
 }
 
-- (void)maskInsertText:(NSString *)text {
-    [self maskInsertText:text];
-    [self insertMask];
-}
-- (void)maskDeleteBackward {
-    [self maskDeleteBackward];
-    [self insertMask];
-}
-- (void)maskPaste:(id)sender {
-    [self maskPaste:sender];
-    [self insertMask];
+- (NSString *)maskedText {
+    return [self __maskText];
 }
 
-- (void)insertMask {
+#pragma mark - Swizzled messages
+
+- (NSString *)__maskText {
+    if (self.formatter) {
+        return [self.formatter objectValueForString:[self __maskText]];
+    } else {
+        return [self __maskText];
+    }
+}
+- (void)__maskSetText:(NSString *)text {
+    if (self.formatter) {
+        [self __maskSetText:[self.formatter stringForObjectValue:text]];
+    } else {
+        [self __maskSetText:text];
+    }
+}
+
+- (void)__maskInsertText:(NSString *)text {
+    [self __maskInsertText:text];
+    [self __insertMask];
+}
+- (void)__maskDeleteBackward {
+    [self __maskDeleteBackward];
+    [self __insertMask];
+}
+- (void)__maskPaste:(id)sender {
+    [self __maskPaste:sender];
+    [self __insertMask];
+}
+
+- (void)__insertMask {
     if (!self.formatter) {
         return;
     }
-    NSString * str = self.text;
+    NSString * str = [self __maskText];
     str = [self.formatter objectValueForString:str];
-    self.text = [self.formatter stringForObjectValue:str];
+    [self __maskSetText:[self.formatter stringForObjectValue:str]];
 }
 
 @end

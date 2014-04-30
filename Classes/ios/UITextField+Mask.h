@@ -10,4 +10,6 @@
 
 @interface UITextField (Mask)
 @property (nonatomic, strong) NSString * mask;
+
+- (NSString *)maskedText;
 @end
